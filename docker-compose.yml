@@ -13,6 +13,12 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - fastapi-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d fastapi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   redis:
     image: redis:7
     container_name: redis
@@ -20,8 +26,33 @@ services:
       - "6379:6379"
     networks:
       - fastapi-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    image: backend:latest
+    container_name: fastapi-app
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_URL=postgresql://admin:admin1234@postgres:5432/fastapi
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./uploads:/app/uploads
+    networks:
+      - fastapi-network
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   postgres_data:
