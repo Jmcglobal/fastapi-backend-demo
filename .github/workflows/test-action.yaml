@@ -9,6 +9,8 @@ jobs:
   build:
     name: Build Docker Image
     runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.tag_image.outputs.IMAGE_TAG }}
     env:
       IMAGE_NAME: backend
 
@@ -85,17 +87,17 @@ jobs:
           echo "Docker compose file updated:"
           cat docker-compose.yml
 
-      - name: Start services with docker-compose
+      - name: Start services with docker compose
         run: |
-          docker-compose up -d
+          docker compose up -d
           echo "Docker compose started in detached mode"
           sleep 60
 
       - name: Check docker-compose logs
         run: |
           echo "=== Docker Compose Logs ==="
-          docker-compose logs
+          docker compose logs
           echo "============================="
           docker ps -a
-          docker-compose down -v
+          docker compose down -v
       
