@@ -107,15 +107,9 @@ jobs:
         run: |
           docker compose up -d
           echo "Docker compose started in detached mode"
+          echo "Waiting for services to initialize..."
+          echo "Sleeping for 60 seconds"
           sleep 60
-      
-      - name: Check docker-compose logs and containers
-        run: |
-          echo "=== Docker Compose Logs ==="
-          docker compose logs
-          echo "============================="
-          docker ps -a
-         # docker compose down -v
 
       - name: Check server Port responsiveness
         run: |
@@ -133,6 +127,15 @@ jobs:
             fi
           done
           echo "❌ Server is not responding on port 8000 after $MAX_RETRIES attempts"
-          docker compose down -v
+          docker ps -a
+          docker compose logs
           exit 1
+
+      - name: Check docker-compose logs and containers
+        run: |
+          echo "=== Docker Compose Logs ==="
+          docker compose logs
+          echo "============================="
+          docker ps -a
+          docker compose down -v
       
