@@ -40,12 +40,20 @@ jobs:
       - name: Save Docker Image
         run: |
           docker save $IMAGE_NAME:$IMAGE_TAG -o  /tmp/backend.tar.gz
-      - name: Upload Docker Image as Artifact
-        uses: actions/upload-artifact@v4
+
+      # - name: Upload Docker Image as Artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: backend-image
+      #     path: /tmp/backend.tar.gz
+      #     retention-days: 1
+
+      # Using cache instead of artifact to save time and space
+      - name: Cache Docker image
+        uses: actions/cache/save@v4
         with:
-          name: backend-image
           path: /tmp/backend.tar.gz
-          retention-days: 1
+          key: backend-image-${{ github.run_id }}
 
   test:
     name: Test Docker Image
@@ -59,11 +67,19 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Download Docker Image Artifact
-        uses: actions/download-artifact@v4
+      # - name: Download Docker Image Artifact
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: backend-image
+      #     path: /tmp
+
+        ## Get Docker image from cache
+      - name: Restore Docker image from cache
+        uses: actions/cache/restore@v4
         with:
-          name: backend-image
-          path: /tmp
+          path: /tmp/backend.tar.gz
+          key: backend-image-${{ github.run_id }}
+          fail-on-cache-miss: true
 
       - name: Load Docker Image
         run: |
