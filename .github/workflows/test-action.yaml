@@ -65,7 +65,7 @@ jobs:
 
       - name: Load Docker Image
         run: |
-          docker load -i /tmp/backend-image/backend.tar.gz
+          docker load -i /tmp/backend.tar.gz
 
       # - name: Configure AWS credentials
       #   uses: aws-actions/configure-aws-credentials@v4
@@ -95,4 +95,7 @@ jobs:
         run: |
           echo "=== Docker Compose Logs ==="
           docker-compose logs
-          echo "==========================="
+          echo "============================="
+          docker ps -a
+          docker-compose down -v
+      
