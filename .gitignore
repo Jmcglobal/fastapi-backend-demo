@@ -46,3 +46,6 @@ alembic/versions/*.py
 # Uploads
 uploads/*
 !uploads/.gitkeep
+locust.py
+LOCUST_QUICKSTART.md
+LOCUST_GUIDE.md

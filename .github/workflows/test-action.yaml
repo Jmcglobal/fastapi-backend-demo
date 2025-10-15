@@ -92,12 +92,31 @@ jobs:
           docker compose up -d
           echo "Docker compose started in detached mode"
           sleep 60
-
-      - name: Check docker-compose logs
+      
+      - name: Check docker-compose logs and containers
         run: |
           echo "=== Docker Compose Logs ==="
           docker compose logs
           echo "============================="
           docker ps -a
+         # docker compose down -v
+
+      - name: Check server Port responsiveness
+        run: |
+          MAX_RETRIES=5
+          RETRY_COUNT=0
+          
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            if curl -f http://localhost:8000/ || curl -f http://localhost:8000/docs; then
+              echo "✅ Server is healthy and responding on port 8000"
+              exit 0
+            else
+              RETRY_COUNT=$((RETRY_COUNT + 1))
+              echo "Attempt $RETRY_COUNT of $MAX_RETRIES failed, retrying in 10 seconds..."
+              sleep 10
+            fi
+          done
+          echo "❌ Server is not responding on port 8000 after $MAX_RETRIES attempts"
           docker compose down -v
+          exit 1
       
